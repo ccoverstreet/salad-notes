@@ -88,10 +88,6 @@ func (app *SaladApp) DWCallback(event fsnotify.Event) {
 		return
 	}
 
-	log.Info().
-		Str("file", event.Name).
-		Msg("Write event detected")
-
 	// Ignore files that aren't Markdown files
 	if ext != ".md" {
 		return
@@ -107,10 +103,11 @@ func (app *SaladApp) NotifyClients(modifiedFile string) {
 
 	errString := ""
 
-	log.Printf("%v", app.clients)
+	for remoteAddr, client := range app.clients {
+		log.Info().
+			Str("remoteAddr", remoteAddr).
+			Msg("Notifying client")
 
-	for _, client := range app.clients {
-		log.Info().Msg("Notifying client")
 		err := client.conn.WriteJSON(data)
 		if err != nil {
 			errString += err.Error() + ";"
