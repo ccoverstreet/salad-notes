@@ -4,6 +4,17 @@ The goal for this project is to create a more robust version of the note-taking 
 
 One of the shortcomings of this approach is that linking between files in different subdirectories (such as school work and personal research) requires special attention to the path in which the PDF viewer is opened. This problem could be mitigated by setting environment variables or using some form of start script when editing or creating a file.
 
-This project is a web server that is started in the root of a notebook (directory with or without nested subdirectories). The client would connect to the web server and be able to view markdown files within the observed directory. Any writes to markdown filess would send the updated file to any connected clients and updated the displayed markdown.
+This project is a web server that is started in the root of a notebook (directory with or without nested subdirectories). The client would connect to the web server and be able to view markdown files within the observed directory. Any writes to markdown files would send the updated file to any connected clients and updated the displayed markdown.
 
+## Usage
 
+1. Start `salad-notes` in the directory that you want to use as the root of your notebook
+2. Open a browser tab and go to `localhost:33322`
+3. Start writing to a `.md` file. The client will automatically view the file once you write to it
+
+## Planned Features
+
+- File explorer for notebook directory
+	- Viewing client can navigate to files independently
+- Multiple viewing panes
+	- Once file linking is sorted, a primary and secondary view pane would allow for users to have multiple notes open. 
