@@ -1,56 +1,24 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Salad Notes</title>
 		<meta name="viewport" content="width=device-width">
 		<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 		<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 		<script src="/saladnotes/assets/index.js"></script>
+		<link rel="stylesheet" href="/saladnotes/assets/index.css"/>
 
 		<script>
-			function testRefResolution() {
-				fetch("/tester")
-					.then(async data => {
-						const text = await data.text();
-						console.log(text);
-
-						const temp = document.createElement("template");
-						temp.innerHTML = text;
-						console.log(temp);
-
-						/*
-						const parser = new DOMParser();
-						const frag = parser.parseFromString(text, "text/html")
-						*/
-
-						const img = temp.content.querySelector("img");
-
-						console.log(img)
-						console.log(img.src);
-						const rawSrc = img.getAttribute("src");
-
-						if (!rawSrc.startsWith("/")) {
-							img.src = "/banana/test/" + rawSrc;
-						}
-
-						console.log(img);
-
-						const pane = document.querySelector("#md-view-pane");
-						pane.innerHTML = "";
-						pane.appendChild(temp.content);
-					})
-			}
-
-			testRefResolution();
+			document.addEventListener("DOMContentLoaded", () => {
+				salad.connectClient()
+			});
 		</script>
 
 	</head>
 	<body>
-		<div style="display: flex; justify-content: center;
-			height: 80vh; overflow-y: scroll;
-			border: solid black 1px;">
+		<div id="md-view-holder">
 			<div id="md-view-pane" style="width: 90%;  padding: 1em;">
-
 			</div>
 		</div>
 	</body>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/ccoverstreet/salad-notes/app"
@@ -12,8 +13,12 @@ func main() {
 	setupLogging()
 	log.Info().Msg("Starting Salad Notes")
 
-	core := app.CreateSaladApp()
-	core.Listen(8080)
+	core := app.CreateSaladApp(".")
+	port := 33322
+	log.Info().
+		Str("URL", fmt.Sprintf("http://localhost:%d", port)).
+		Msg("Started Salad Notes core")
+	core.Listen(33322)
 
 	//pandoc.RunPandoc("test.md", "test.html", []string{"--mathjax"})
 }

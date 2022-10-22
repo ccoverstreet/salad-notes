@@ -1,6 +1,7 @@
 package dirwatch
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -19,12 +20,33 @@ func CreateDirWatcher(rootDir string) (*DirWatcher, error) {
 	}
 
 	watcher.Add(rootDir)
-	watcher.Add("./misc")
+	InitRecursiveWatch(watcher, rootDir)
 
 	return &DirWatcher{
 		watcher,
 		func(fsnotify.Event) {},
 	}, nil
+}
+
+func InitRecursiveWatch(watcher *fsnotify.Watcher, rootDir string) {
+	files, err := os.ReadDir(rootDir)
+	if err != nil {
+		return
+	}
+
+	for _, f := range files {
+		if !f.IsDir() {
+			continue
+		}
+
+		newDir := rootDir + "/" + f.Name()
+		fmt.Println(newDir)
+
+		watcher.Add(newDir)
+		InitRecursiveWatch(watcher, newDir)
+
+	}
+
 }
 
 func (dw *DirWatcher) Listen() {
@@ -34,6 +56,7 @@ func (dw *DirWatcher) Listen() {
 			case event, ok := <-dw.watcher.Events:
 				if !ok {
 					return
+
 				}
 
 				// Need to add newly created directories to watch list

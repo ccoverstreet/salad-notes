@@ -12,9 +12,11 @@ salad = {
 	},
 
 	WSCONNECTION: undefined,
+	CURRENTFILE: undefined,
 
 	retrieveFile: (file) => {
-		console.log(file);
+		PRIORFILE = salad.CURRENTFILE
+		salad.CURRENTFILE = file;
 
 		fetch(file)
 			.then(async data => {
@@ -31,6 +33,11 @@ salad = {
 				pane.innerHTML = "";
 				pane.appendChild(temp.content);
 				MathJax.typeset();
+				if (PRIORFILE == salad.CURRENTFILE) {
+					console.log("Auto-scrolling to bottom")
+					const holder = document.querySelector("#md-view-holder");
+					holder.scrollTop = holder.scrollHeight;
+				}
 			});
 	},
 
