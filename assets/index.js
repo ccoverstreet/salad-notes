@@ -26,7 +26,7 @@ salad = {
 				console.log(splitFilePath);
 				const relRoot = splitFilePath.slice(0, splitFilePath.length - 1).join("/");
 				
-				const temp = salad.resolveRelativePaths(salad.createHTMLTemplate(rawHTML),
+				const temp = salad.resolveRelativePaths(salad.createHTMLTemplate(rawHTML.replaceAll("\\AA", "\\unicode{x212B}")),
 					relRoot);
 
 				const pane = document.querySelector("#md-view-pane");
@@ -62,4 +62,5 @@ salad = {
 		
 		return template;
 	}
+
 }
