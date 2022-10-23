@@ -1,5 +1,7 @@
 # asdf
 
+$\AA$
+
 asda
 
 \begin{gather*}

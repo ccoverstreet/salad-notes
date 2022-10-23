@@ -1,7 +1,6 @@
 package dirwatch
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -40,7 +39,7 @@ func InitRecursiveWatch(watcher *fsnotify.Watcher, rootDir string) {
 		}
 
 		newDir := rootDir + "/" + f.Name()
-		fmt.Println(newDir)
+		//fmt.Println(newDir)
 
 		watcher.Add(newDir)
 		InitRecursiveWatch(watcher, newDir)

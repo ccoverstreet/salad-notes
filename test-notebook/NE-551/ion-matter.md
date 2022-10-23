@@ -1,5 +1,7 @@
-# Ion-Matter itneractions
+# Ion-Matter Interactions
 2022-09-15
+
+$2\AA$
 
 
 ![asd](./Figure_4.svg)
@@ -63,3 +65,5 @@ $$
 	n_e = N_A \rho [\frac{f_H}{A_H} Z_H + \frac{f_O}{A_O} Z_O] \\ 
 	n_e = 3.35\times 10^{23}\ [e^-/cm^3]
 \end{gather*}
+
+# END

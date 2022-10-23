@@ -1,9 +1,73 @@
+:root {
+	font-family: Arial;
+	--toolbar-height: 2em;
+	--clr-primary: #00695c;
+	--clr-primary-light: #439889;
+	--clr-secondary: #80d8ff;
+	--clr-secondary-light: #b5ffff;
+	--clr-font-high: #000000;
+	--clr-font-med: #555555;
+	--clr-font-low: #999999;
+	--clr-background: #eeeeee;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background-color: var(--clr-background);
+}
+
+#toolbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: var(--toolbar-height);
+	display: flex;
+	justify-content: center;
+	background-color: var(--clr-primary)
+}
+
+#file-explorer-button {
+	display: flex;
+	align-items: center;
+	padding: 0em 1em;
+	font-weight: bold;
+}
+
+#page-title {
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
+	align-items: center;
+	font-weight: bold;
+}
+
+#page-title > a {
+	text-decoration: none;
+	color: #dddddd;
+}
+
+#github-link { 
+	margin-right: 0.5em;
+	margin-top: calc(var(--toolbar-height) * 0.05);
+	height: calc(var(--toolbar-height) * 0.9);
+}
+
+#content {
+	margin-top: var(--toolbar-height);
+	overflow: auto;
+}
+
 #md-view-holder {
 	display: flex;
 	justify-content: center;
-	height: 80vh;
+	height: calc(100vh - var(--toolbar-height) - 4 * 1em);
 	overflow-y: scroll;
 	border: solid black 1px;
+	padding: 1em;
+	background-color: #ffffff;
+	margin: 0.5em;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -15,4 +79,8 @@
 #md-view-holder {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+#md-view-pane {
+	width: 100%;
 }

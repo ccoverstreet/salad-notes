@@ -8,6 +8,7 @@ import (
 //go:embed index.html
 //go:embed index.css
 //go:embed index.js
+//go:embed github-logo-light.png
 var embedFS embed.FS
 
 type FileData struct {
@@ -25,6 +26,7 @@ var MIMEMAP map[string]string = map[string]string{
 	".js":  "text/javascript",
 	".css": "text/css",
 	".svg": "image/svg+xml",
+	".png": "image/png",
 }
 
 func DetermineMimeType(filename string) string {
