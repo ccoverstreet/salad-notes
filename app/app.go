@@ -110,6 +110,7 @@ func (app *SaladApp) NotifyClients(modifiedFile string) {
 
 		err := client.conn.WriteJSON(data)
 		if err != nil {
+			delete(app.clients, remoteAddr)
 			errString += err.Error() + ";"
 		}
 	}
