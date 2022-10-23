@@ -13,10 +13,13 @@ salad = {
 
 	WSCONNECTION: undefined,
 	CURRENTFILE: undefined,
+	CURRENTFILERAWNODE: undefined,
 
 	retrieveFile: (file) => {
 		PRIORFILE = salad.CURRENTFILE
 		salad.CURRENTFILE = file;
+
+		const isSameFile = PRIORFILE === salad.CURRENTFILE;
 
 		fetch(file)
 			.then(async data => {
@@ -34,15 +37,46 @@ salad = {
 					relRoot);
 
 				const pane = document.querySelector("#md-view-pane");
+
+				// Find location of first change
+				// Making the assumption that any major changes appear in the level
+				// of the first children
+				var firstMismatchElem = undefined;
+				if (isSameFile) {
+					const origChildren = salad.CURRENTFILERAWNODE.children;
+					const newChildren = temp.content.children;
+
+					console.log(origChildren);
+					console.log(newChildren);
+
+					traverseN = Math.min(origChildren.length, newChildren.length);
+
+					for (var i = 0; i < traverseN; i++) {
+						// Search for mismatch
+						// return a reference
+						if (!origChildren[i].isEqualNode(newChildren[i])) {
+							console.log("Mismatch found", i, origChildren[i].innerHTML, newChildren[i].innerHTML);
+							firstMismatchElem = newChildren[i];
+							break;
+						}
+					}
+				}
+
+				const priorRawNode = salad.CURRENTFILERAWNODE
+				salad.CURRENTFILERAWNODE = temp.content.cloneNode(true);
+
 				pane.innerHTML = "";
 				pane.appendChild(temp.content);
 
 				await MathJax.typesetPromise();
 
-				if (PRIORFILE == salad.CURRENTFILE) {
-					console.log("Auto-scrolling to bottom")
+				if (isSameFile && firstMismatchElem) {
+					console.log("Auto-scrolling to change")
+					/*
 					const holder = document.querySelector("#md-view-holder");
 					holder.scrollTop = holder.scrollHeight;
+					*/
+					firstMismatchElem.scrollIntoView(true);
 				}
 			});
 	},

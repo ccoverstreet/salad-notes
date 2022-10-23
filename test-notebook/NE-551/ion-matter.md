@@ -6,6 +6,8 @@ $2\AA$
 
 ![asd](./Figure_4.svg)
 
+asd
+
 $$
 	S_c = 4 \pi r_0^2 m_e c^2 (\frac{z^2}{\beta^2})(\frac{N_A\rho Z}{M_m})
 	\{ln(\frac{2m_e c^2 \gamma^2 \beta^2}{I}) - \beta^2\}
@@ -54,6 +56,7 @@ $$
 \end{gather*}
 	- Don't need molar weight of molecule
 
+
 - Electron density of water
 \begin{gather*}
 	A_O = 16 \\
@@ -66,4 +69,11 @@ $$
 	n_e = 3.35\times 10^{23}\ [e^-/cm^3]
 \end{gather*}
 
+
 # END
+
+
+\begin{gather*}
+	2 + 2 \\
+	3 \\
+\end{gather*}
