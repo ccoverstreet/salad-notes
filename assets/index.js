@@ -40,26 +40,13 @@ salad = {
 
 				// Find location of first change
 				// Find the deepest first changed element
-				var firstMismatchElem = undefined;
-				if (isSameFile) {
-					const origChildren = salad.CURRENTFILERAWNODE.children;
-					const newChildren = temp.content.children;
+				var firstDiffElem = salad.CURRENTFILERAWNODE ? salad.getFirstDifferentElem(
+					salad.CURRENTFILERAWNODE,
+					temp.content
+				) : null;
 
-					console.log(origChildren);
-					console.log(newChildren);
+				console.log("First diff", firstDiffElem);
 
-					traverseN = Math.min(origChildren.length, newChildren.length);
-
-					for (var i = 0; i < traverseN; i++) {
-						// Search for mismatch
-						// return a reference
-						if (!origChildren[i].isEqualNode(newChildren[i])) {
-							console.log("Mismatch found", i, origChildren[i].innerHTML, newChildren[i].innerHTML);
-							firstMismatchElem = newChildren[i];
-							break;
-						}
-					}
-				}
 
 				const priorRawNode = salad.CURRENTFILERAWNODE
 				salad.CURRENTFILERAWNODE = temp.content.cloneNode(true);
@@ -69,13 +56,13 @@ salad = {
 
 				await MathJax.typesetPromise();
 
-				if (isSameFile && firstMismatchElem) {
+				if (isSameFile && firstDiffElem) {
 					console.log("Auto-scrolling to change")
 					/*
 					const holder = document.querySelector("#md-view-holder");
 					holder.scrollTop = holder.scrollHeight;
 					*/
-					firstMismatchElem.scrollIntoView(true);
+					firstDiffElem.scrollIntoView(true);
 				}
 			});
 	},
@@ -98,8 +85,34 @@ salad = {
 
 			img.style.width = "100%";
 		}
-		
+
 		return template;
+	},
+
+	// Find the first element in a tree that is new compared 
+	// to an existing tree.
+	// Returns the element in the new tree
+	getFirstDifferentElem: (old, updated) => {
+		console.log(old, updated);
+		const origChildren = old.children;
+		const newChildren = updated.children;
+		const traverseN = Math.min(origChildren.length, newChildren.length);
+
+		for (var i = 0; i < traverseN; i++) {
+			if (!origChildren[i].isEqualNode(newChildren[i])) {
+				if (newChildren[i].children.length === 0) {
+					return newChildren[i]
+				}
+
+				return salad.getFirstDifferentElem(oldChildren[i], newChildren[i]);
+			}
+		}
+
+		if (newChildren.length > origChildren.length) {
+			return newChildren[origChildren.length];
+		}
+
+		return null;
 	}
 
 }

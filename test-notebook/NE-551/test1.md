@@ -15,6 +15,3 @@ asda
 
 ![Fig. Random plot of stopping power](./Figure_4.svg)
 
-
-
-asd
