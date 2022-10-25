@@ -39,8 +39,7 @@ salad = {
 				const pane = document.querySelector("#md-view-pane");
 
 				// Find location of first change
-				// Making the assumption that any major changes appear in the level
-				// of the first children
+				// Find the deepest first changed element
 				var firstMismatchElem = undefined;
 				if (isSameFile) {
 					const origChildren = salad.CURRENTFILERAWNODE.children;
