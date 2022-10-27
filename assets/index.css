@@ -22,6 +22,7 @@ body {
 	top: 0;
 	left: 0;
 	width: 100vw;
+	z-index: 100;
 	height: var(--toolbar-height);
 	display: flex;
 	justify-content: center;
@@ -54,9 +55,8 @@ body {
 	height: calc(var(--toolbar-height) * 0.9);
 }
 
-#content {
+#page-content {
 	margin-top: var(--toolbar-height);
-	overflow: auto;
 }
 
 #md-view-holder {
@@ -84,3 +84,9 @@ body {
 #md-view-pane {
 	width: 100%;
 }
+
+salad-md-viewer > div {
+	background-color: #ffffff;
+	padding: 1em;
+}
+

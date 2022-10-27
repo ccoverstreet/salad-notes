@@ -1,3 +1,4 @@
+
 salad = {
 	connectClient: () => {
 		const conn = new WebSocket(`ws://${document.location.host}/saladnotes/connectClient`);
@@ -25,45 +26,9 @@ salad = {
 			.then(async data => {
 				const rawHTML = await data.text();
 
-				const splitFilePath = file.split("/");
-				console.log(splitFilePath);
-				const relRoot = splitFilePath
-					.slice(0, splitFilePath.length - 1)
-					.join("/");
+				const viewer = document.querySelector("#salad-md-viewer-1");
 
-				const temp = salad.resolveRelativePaths(
-					salad.createHTMLTemplate(
-						rawHTML.replaceAll("\\AA", "\\unicode{x212B}")),
-					relRoot);
-
-				const pane = document.querySelector("#md-view-pane");
-
-				// Find location of first change
-				// Find the deepest first changed element
-				var firstDiffElem = salad.CURRENTFILERAWNODE ? salad.getFirstDifferentElem(
-					salad.CURRENTFILERAWNODE,
-					temp.content
-				) : null;
-
-				console.log("First diff", firstDiffElem);
-
-
-				const priorRawNode = salad.CURRENTFILERAWNODE
-				salad.CURRENTFILERAWNODE = temp.content.cloneNode(true);
-
-				pane.innerHTML = "";
-				pane.appendChild(temp.content);
-
-				await MathJax.typesetPromise();
-
-				if (isSameFile && firstDiffElem) {
-					console.log("Auto-scrolling to change")
-					/*
-					const holder = document.querySelector("#md-view-holder");
-					holder.scrollTop = holder.scrollHeight;
-					*/
-					firstDiffElem.scrollIntoView(true);
-				}
+				viewer.displayFile(file, rawHTML);
 			});
 	},
 
@@ -89,6 +54,10 @@ salad = {
 		return template;
 	},
 
+	replaceSpecialChars: (text) => {
+		return text.replaceAll("\\AA", "\\unicode{x212B}")
+	},
+
 	// Find the first element in a tree that is new compared 
 	// to an existing tree.
 	// Returns the element in the new tree
@@ -104,7 +73,7 @@ salad = {
 					return newChildren[i]
 				}
 
-				return salad.getFirstDifferentElem(oldChildren[i], newChildren[i]);
+				return salad.getFirstDifferentElem(origChildren[i], newChildren[i]);
 			}
 		}
 
@@ -116,3 +85,76 @@ salad = {
 	}
 
 }
+
+
+
+class SaladMDViewer extends HTMLElement {
+	constructor() {
+		super();
+
+		this.currentFilename = undefined;
+		this.currentFileNodeRaw = undefined;
+	}
+
+	connectedCallback() {
+		console.log("ASDALSJDHALKSJDHLAKSJh");
+		this.innerHTML = `
+		<div class="salad-md-viewer-filename"></div>
+		<div id="content">
+		</div>
+		`
+	}
+
+	async displayFile(filename, htmlText) {
+		const isSameFile = this.currentFilename = filename;
+		this.currentFilename = filename;
+
+		const contentView = this.querySelector("#content");
+		
+		const splitFilePath = filename.split("/");
+		const relRoot = splitFilePath
+			.slice(0, splitFilePath.length - 1)
+			.join("/");
+
+		console.log(`Relative root for ${filename}: ${relRoot}`);
+
+		const newTemplate = salad.resolveRelativePaths(
+			salad.createHTMLTemplate(
+				salad.replaceSpecialChars(htmlText)
+			),
+			relRoot
+		);
+
+		const firstDiffElem = this.currentFileNodeRaw ? salad.getFirstDifferentElem(
+			this.currentFileNodeRaw, newTemplate.content
+		) : null;
+
+		this.currentFileNodeRaw = newTemplate.content.cloneNode(true);
+
+		// Add to view as child and render MathJax
+		contentView.innerHTML = "";
+		contentView.appendChild(newTemplate.content);
+
+		this.querySelector(".salad-md-viewer-filename").textContent = filename;
+
+		await MathJax.typesetPromise();
+
+	 	if (isSameFile && firstDiffElem) {
+			console.log("Auto-scrolling to change");
+			console.log(`First different element`, firstDiffElem);
+
+			// Not sure why this is required for correct behavior
+			setTimeout(() => {
+				firstDiffElem.scrollIntoView();
+			}, 0)
+
+			firstDiffElem.style.backgroundColor = "#ff0000";
+			setTimeout(() => {
+				firstDiffElem.style.backgroundColor = "#ffffff";
+			}, 3000)
+	 	}
+
+	}
+}
+
+customElements.define("salad-md-viewer", SaladMDViewer);

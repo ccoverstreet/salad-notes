@@ -13,5 +13,20 @@ asda
 	x = -1, 2
 \end{gather*}
 
+
+
 ![Fig. Random plot of stopping power](./Figure_4.svg)
 
+![Fig. Random plot of stopping power](./Figure_4.svg)
+
+asd
+
+oasd
+
+asd
+
+asd
+
+asd
+
+asd
