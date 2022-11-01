@@ -88,5 +88,15 @@ body {
 salad-md-viewer > div {
 	background-color: #ffffff;
 	padding: 1em;
+	transition: background-color 1s ease-out;
 }
 
+
+salad-md-viewer > div > * {
+	transition: background-color 1s ease-out;
+}
+
+.salad-md-viewer-filename {
+	font-weight: bold;
+	border-bottom: 1px black solid;
+}

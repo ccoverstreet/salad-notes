@@ -100,16 +100,22 @@ class SaladMDViewer extends HTMLElement {
 		console.log("ASDALSJDHALKSJDHLAKSJh");
 		this.innerHTML = `
 		<div class="salad-md-viewer-filename"></div>
-		<div id="content">
+
+		<div class="salad-md-viewer-content" style="height: 500px; overflow: scroll;">
 		</div>
 		`
+
+		const filenameElem = this.querySelector(".salad-md-viewer-filename");
+		filenameElem.onclick = () => {
+			navigator.clipboard.writeText(filenameElem.textContent);
+		}
 	}
 
 	async displayFile(filename, htmlText) {
 		const isSameFile = this.currentFilename = filename;
 		this.currentFilename = filename;
 
-		const contentView = this.querySelector("#content");
+		const contentView = this.querySelector(".salad-md-viewer-content");
 		
 		const splitFilePath = filename.split("/");
 		const relRoot = splitFilePath
@@ -148,7 +154,7 @@ class SaladMDViewer extends HTMLElement {
 				firstDiffElem.scrollIntoView();
 			}, 0)
 
-			firstDiffElem.style.backgroundColor = "#ff0000";
+			firstDiffElem.style.backgroundColor = "var(--clr-secondary)";
 			setTimeout(() => {
 				firstDiffElem.style.backgroundColor = "#ffffff";
 			}, 3000)
