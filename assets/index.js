@@ -101,7 +101,7 @@ class SaladMDViewer extends HTMLElement {
 		this.innerHTML = `
 		<div class="salad-md-viewer-filename"></div>
 
-		<div class="salad-md-viewer-content" style="height: 500px; overflow: scroll;">
+		<div class="salad-md-viewer-content">
 		</div>
 		`
 

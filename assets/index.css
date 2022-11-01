@@ -100,3 +100,8 @@ salad-md-viewer > div > * {
 	font-weight: bold;
 	border-bottom: 1px black solid;
 }
+
+.salad-md-viewer-content {
+	overflow-y: scroll;
+	height: 80vh;
+}
