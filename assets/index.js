@@ -82,10 +82,111 @@ salad = {
 		}
 
 		return null;
-	}
+	},
 
+	listDir: (dirName) => {
+		return fetch("/saladnotes/listDir", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({dirName: dirName})
+		})
+			.then(async data => {
+				return await data.json();
+			})
+	},
+
+	showDir: async (dirName) => {
+		files = await salad.listDir(dirName);
+
+		console.log(files);
+	}
 }
 
+class SaladFileExplorer extends HTMLElement {
+	constructor() {
+		super();
+		
+		this.currentDir = ".";
+	}
+
+	connectedCallback() {
+		this.innerHTML = `
+		<div class="salad-file-explorer-content">
+		</div>
+		`;
+
+		this.showDirectory(this.currentDir);
+	}
+
+	async showDirectory(dirName) {
+		this.currentDir = dirName;
+		const files = await salad.listDir(dirName);
+		const content = this.querySelector(".salad-file-explorer-content");
+
+
+		console.log(files, this);
+
+		const fileHolder = document.createElement("div");
+
+		const aboveDir = document.createElement("div");
+		aboveDir.textContent = "..";
+		aboveDir.dataset.isDir = true;
+		aboveDir.dataset.name = "..";
+		aboveDir.style.padding = "0em 1em"
+		aboveDir.onclick = (event) => {
+			const elem = event.srcElement;
+
+			console.log(elem.dataset);
+
+			// If element is not a directory
+			// Just retrieve the file
+			if (elem.dataset.isDir !== 'true') {
+				console.log("TODO: Retrieve file")
+				return
+			}
+
+			this.showDirectory(this.currentDir+"/"+elem.dataset.name);
+		}
+
+		fileHolder.appendChild(aboveDir);
+
+		for (const f of files) {
+			const fileRow = document.createElement("div");
+			
+			const attributes = f["isDir"] === true ? "/" : "";
+
+			fileRow.textContent = attributes + f.name;
+			fileRow.dataset.isDir = f["isDir"];
+			fileRow.dataset.name = f["name"];
+			fileRow.style.padding = "0em 1em"
+
+			fileRow.onclick = (event) => {
+				const elem = event.srcElement;
+
+				console.log(elem.dataset);
+
+				// If element is not a directory
+				// Just retrieve the file
+				if (elem.dataset.isDir !== 'true') {
+					salad.retrieveFile(this.currentDir+"/"+elem.dataset.name);
+					console.log("TODO: Retrieve file");
+					return
+				}
+
+				this.showDirectory(this.currentDir+"/"+elem.dataset.name);
+			}
+
+			fileHolder.appendChild(fileRow);
+		}
+
+		content.innerHTML = "";
+		content.appendChild(fileHolder);
+	}
+}
+
+customElements.define("salad-file-explorer", SaladFileExplorer);
 
 
 class SaladMDViewer extends HTMLElement {
@@ -112,7 +213,7 @@ class SaladMDViewer extends HTMLElement {
 	}
 
 	async displayFile(filename, htmlText) {
-		const isSameFile = this.currentFilename = filename;
+		const isSameFile = this.currentFilename === filename;
 		this.currentFilename = filename;
 
 		const contentView = this.querySelector(".salad-md-viewer-content");
@@ -131,7 +232,7 @@ class SaladMDViewer extends HTMLElement {
 			relRoot
 		);
 
-		const firstDiffElem = this.currentFileNodeRaw ? salad.getFirstDifferentElem(
+		const firstDiffElem = isSameFile ? salad.getFirstDifferentElem(
 			this.currentFileNodeRaw, newTemplate.content
 		) : null;
 

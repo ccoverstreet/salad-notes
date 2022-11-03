@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"sync"
 
 	"github.com/ccoverstreet/salad-notes/assets"
@@ -41,6 +42,7 @@ func CreateSaladApp(watchdir string) *SaladApp {
 	router.HandleFunc("/", HomeHandler)
 	router.HandleFunc("/saladnotes/connectClient", WrapRoute(ConnectClient, app))
 	router.HandleFunc("/saladnotes/assets/{file}", AssetHandler)
+	router.HandleFunc("/saladnotes/listDir", ListDirHandler)
 	router.PathPrefix("/").Handler(http.HandlerFunc(StaticFileHandler))
 
 	app.router = router
@@ -214,4 +216,35 @@ func StaticFileHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(b)
 	}
+}
+
+func ListDirHandler(w http.ResponseWriter, r *http.Request) {
+	reqData := struct {
+		DirName string `json:"dirName"`
+	}{}
+
+	err := util.UnmarshalJSONBody(r, &reqData)
+	if err != nil {
+		util.HandleHTTPErrorAndLog(w, 400, err)
+		return
+	}
+
+	sanitizedDir := sanitizeDirName(reqData.DirName)
+
+	files, err := util.ListDir(sanitizedDir)
+	if err != nil {
+		util.HandleHTTPErrorAndLog(w, 500, err)
+		return
+	}
+
+	util.SendJSONResponse(w, files)
+}
+
+func sanitizeDirName(dirName string) string {
+	out := filepath.Clean(dirName)
+	if string(out[0]) == "/" {
+		return out[1:]
+	}
+
+	return out
 }
