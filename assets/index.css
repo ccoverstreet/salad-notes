@@ -107,6 +107,10 @@ salad-md-viewer > div > * {
 }
 
 .salad-md-viewer {
-	overflow-y: scroll;
 	height: 80vh;
+}
+
+.salad-md-viewer-content {
+	height: 78vh;
+	overflow-y: scroll;
 }
