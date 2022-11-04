@@ -12,9 +12,19 @@ This project is a web server that is started in the root of a notebook (director
 2. Open a browser tab and go to `localhost:33322`
 3. Start writing to a `.md` file. The client will automatically view the file once you write to it
 
+### Usage with Vim/Neovim
+
+- Open the root directory of the notebook in vim and navigate using netrw
+- Linking to other files can be done by filename completion
+
+## Implemented Features
+
+- Client view refreshes on file write
+- Simple file explorer for viewing files within the notebook
+- Clicking on the current filename copies the filename text to clipboard
+	- Useful for quickly jumping to files in Vim
+
 ## Planned Features
 
-- File explorer for notebook directory
-	- Viewing client can navigate to files independently
 - Multiple viewing panes
 	- Once file linking is sorted, a primary and secondary view pane would allow for users to have multiple notes open. 

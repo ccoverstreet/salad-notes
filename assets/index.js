@@ -101,6 +101,37 @@ salad = {
 		files = await salad.listDir(dirName);
 
 		console.log(files);
+	}, 
+
+	cleanFilePath: (raw) => {
+		const split = raw.split("/")
+		const cleaned = [];
+
+		let ind = split.length;
+		let skipCounter = 0;
+		while(ind > 0) {
+			ind--;
+			if (split[ind] === "..") {
+				skipCounter += 1;
+				continue;
+			}
+
+			if (skipCounter > 0) {
+				skipCounter -= 1;
+				continue;
+			}
+
+			cleaned.push(split[ind]);
+		}
+
+		console.log(cleaned);
+
+		const path = cleaned.reverse().join("/");
+		if (path === "") {
+			return "."
+		}
+
+		return path;
 	}
 }
 
@@ -121,8 +152,13 @@ class SaladFileExplorer extends HTMLElement {
 	}
 
 	async showDirectory(dirName) {
-		this.currentDir = dirName;
+		dirName = salad.cleanFilePath(dirName);
 		const files = await salad.listDir(dirName);
+		if (files.err) {
+			console.error(`Unable to list directory ${dirName}`);
+			return
+		}
+		this.currentDir = dirName;
 		const content = this.querySelector(".salad-file-explorer-content");
 
 

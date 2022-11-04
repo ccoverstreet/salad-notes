@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/ccoverstreet/salad-notes/assets"
@@ -189,9 +190,13 @@ func StaticFileHandler(w http.ResponseWriter, r *http.Request) {
 				Err(err).
 				Str("file", r.RequestURI).
 				Msg("Error while using pandoc")
+			fmt.Fprintf(w, "%v", err)
+			return
 		}
-		//log.Printf("%s %v", b, err)
+
 		w.Write(b)
+	} else if ext == "" || ext == ".exe" {
+		return
 	} else { // Send binary version of any other file
 		b, err := os.ReadFile("." + r.RequestURI)
 		if err != nil {
@@ -230,6 +235,9 @@ func ListDirHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sanitizedDir := sanitizeDirName(reqData.DirName)
+	if strings.HasPrefix(sanitizedDir, "..") {
+		sanitizedDir = "."
+	}
 
 	files, err := util.ListDir(sanitizedDir)
 	if err != nil {
