@@ -269,6 +269,8 @@ class SaladMDViewer extends HTMLElement {
 			pre.appendChild(code);
 			contentView.innerHTML = "";
 			contentView.appendChild(pre);
+
+			this.querySelector(".salad-md-viewer-filename").textContent = filename;
 		
 			hljs.highlightAll();
 			return
@@ -296,7 +298,6 @@ class SaladMDViewer extends HTMLElement {
 
 		// Add to view as child and render MathJax
 		contentView.innerHTML = "";
-
 		contentView.appendChild(newTemplate.content);
 
 		this.querySelector(".salad-md-viewer-filename").textContent = filename;

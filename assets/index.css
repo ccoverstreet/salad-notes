@@ -123,6 +123,10 @@ salad-md-viewer > div > * {
 	height: 80vh;
 }
 
+.salad-md-viewer-filename {
+	background-color: var(--clr-secondary);
+}
+
 .salad-md-viewer-content {
 	height: 78vh;
 	overflow-y: scroll;
