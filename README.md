@@ -6,6 +6,13 @@ One of the shortcomings of this approach is that linking between files in differ
 
 This project is a web server that is started in the root of a notebook (directory with or without nested subdirectories). The client would connect to the web server and be able to view markdown files within the observed directory. Any writes to markdown files would send the updated file to any connected clients and updated the displayed markdown.
 
+**This project relies on**
+
+- Pandoc
+- Higlight.js
+- github.com/gorilla/websocket
+- github.com/gorilla/mux
+
 ## Usage
 
 1. Start `salad-notes` in the directory that you want to use as the root of your notebook

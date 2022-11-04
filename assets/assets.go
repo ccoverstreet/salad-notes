@@ -5,10 +5,7 @@ import (
 	"path"
 )
 
-//go:embed index.html
-//go:embed index.css
-//go:embed index.js
-//go:embed github-logo-light.png
+//go:embed *
 var embedFS embed.FS
 
 type FileData struct {

@@ -252,7 +252,27 @@ class SaladMDViewer extends HTMLElement {
 		const isSameFile = this.currentFilename === filename;
 		this.currentFilename = filename;
 
+		const splitFilename = filename.split("/");
+
+		const ext = splitFilename[splitFilename.length - 1].split(".").slice(-1)[0];
+		console.log(ext);
+
 		const contentView = this.querySelector(".salad-md-viewer-content");
+
+		// Code file extentions
+		const codeExtensions = ["py", "c", "cpp", "go", "rs"];
+		if (codeExtensions.includes(ext)) {
+			const pre = document.createElement("pre");
+			const code = document.createElement("code");
+			code.textContent = htmlText;
+
+			pre.appendChild(code);
+			contentView.innerHTML = "";
+			contentView.appendChild(pre);
+		
+			hljs.highlightAll();
+			return
+		}
 		
 		const splitFilePath = filename.split("/");
 		const relRoot = splitFilePath
@@ -276,6 +296,7 @@ class SaladMDViewer extends HTMLElement {
 
 		// Add to view as child and render MathJax
 		contentView.innerHTML = "";
+
 		contentView.appendChild(newTemplate.content);
 
 		this.querySelector(".salad-md-viewer-filename").textContent = filename;
