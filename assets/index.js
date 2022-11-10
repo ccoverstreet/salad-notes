@@ -303,6 +303,7 @@ class SaladMDViewer extends HTMLElement {
 		this.querySelector(".salad-md-viewer-filename").textContent = filename;
 
 		await MathJax.typesetPromise();
+		hljs.highlightAll();
 
 	 	if (isSameFile && firstDiffElem) {
 			console.log("Auto-scrolling to change");

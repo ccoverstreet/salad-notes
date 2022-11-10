@@ -13,6 +13,36 @@ asda
 	x = -1, 2
 \end{gather*}
 
+```python
+def main():
+	print("hello")
+
+main()
+```
+
+
+```c
+int main() {
+	printf("Hello world\n");
+	return 0;
+}
+```
+
+```c++
+int main() {
+	std::vector<float> t = {1, 2, 3, 4};
+	return 0;
+}
+```
+
+```go
+func main() {
+	go testFunc()
+	x := 1
+	fmt.Println(x)
+}
+```
+
 
 
 ![Fig. Random plot of stopping power](./Figure_4.svg)
