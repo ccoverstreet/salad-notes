@@ -231,6 +231,7 @@ class SaladMDViewer extends HTMLElement {
 
 		this.currentFilename = undefined;
 		this.currentFileNodeRaw = undefined;
+
 	}
 
 	connectedCallback() {
@@ -238,13 +239,32 @@ class SaladMDViewer extends HTMLElement {
 		this.innerHTML = `
 		<div class="salad-md-viewer-filename"></div>
 
-		<div class="salad-md-viewer-content">
+		<div class="salad-md-viewer-content" tabindex="0">
 		</div>
 		`
 
 		const filenameElem = this.querySelector(".salad-md-viewer-filename");
 		filenameElem.onclick = () => {
 			navigator.clipboard.writeText(filenameElem.textContent);
+		}
+
+		this.onkeydown = event => {
+			event.preventDefault();
+			console.log(event);
+			switch (event.key) {
+				case "r":
+					location.reload();	
+				case "e":
+					if (event.ctrlKey) {
+						this.scroll(20);
+					}
+					break;
+				case "y":
+					if (event.ctrlKey) {
+						this.scroll(-20);
+					}
+					break;
+			}
 		}
 	}
 
@@ -320,6 +340,12 @@ class SaladMDViewer extends HTMLElement {
 			}, 3000)
 	 	}
 
+		contentView.focus();
+	}
+
+	scroll(pixels) {
+		const content = this.querySelector(".salad-md-viewer-content")
+		content.scrollBy({top: pixels, behavior: "smooth"});
 	}
 }
 
