@@ -256,12 +256,12 @@ class SaladMDViewer extends HTMLElement {
 					location.reload();	
 				case "e":
 					if (event.ctrlKey) {
-						this.scroll(20);
+						this.scroll(40);
 					}
 					break;
 				case "y":
 					if (event.ctrlKey) {
-						this.scroll(-20);
+						this.scroll(-40);
 					}
 					break;
 			}
