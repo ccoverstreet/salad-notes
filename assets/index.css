@@ -17,6 +17,13 @@ body {
 	background-color: var(--clr-background);
 }
 
+figure {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
 #toolbar {
 	position: fixed;
 	top: 0;

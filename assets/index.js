@@ -48,7 +48,7 @@ salad = {
 				img.src = relpath + "/" + rawSrc;
 			}
 
-			img.style.width = "100%";
+			img.style.width = "min(600px, 100%)";
 		}
 
 		return template;
