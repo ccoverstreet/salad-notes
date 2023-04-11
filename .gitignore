@@ -1,2 +1,4 @@
-salad-notes
-build
+tester
+public/node_modules/
+public/build/
+public/.svelte-kit/
