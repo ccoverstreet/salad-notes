@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"math/rand"
 	"net/http"
 	"time"
@@ -13,12 +14,15 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	port := flag.Int("p", 23452, "Port")
+	flag.Parse()
+
 	// Setup logging
 	//log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).
 	//log.Logger = log.
 	//With().Caller().Logger()
 
-	app, err := app.CreateApp("tester")
+	app, err := app.CreateApp("mynotes")
 	if err != nil {
 		log.Fatal().
 			Err(err).
@@ -26,8 +30,8 @@ func main() {
 		return
 	}
 
-	log.Info().Msgf("Starting app on port %d", 8080)
-	app.Start()
+	log.Info().Msgf("Starting app on port %d", *port)
+	app.Start(*port)
 }
 
 func HttpHandlerError(w http.ResponseWriter, err error) {

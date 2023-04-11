@@ -8,9 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/ccoverstreet/salad-notes/database"
 	"github.com/ccoverstreet/salad-notes/pandoc"
+	"github.com/ccoverstreet/salad-notes/public"
 	sutil "github.com/ccoverstreet/salad-notes/sutil"
 	"github.com/go-chi/chi/v5"
 )
@@ -72,11 +75,17 @@ func HTTPHandler(closure func(http.ResponseWriter, *http.Request)) http.Handler 
 	return Handler{closure}
 }
 
-func (app *App) Start() {
+func (app *App) Start(port int) {
 	router := chi.NewRouter()
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "SaladNotes Backend")
+		b, err := public.Content.ReadFile("build/index.html")
+		if err != nil {
+			sutil.HttpHandlerError(w, err)
+			return
+		}
+
+		w.Write(b)
 	})
 
 	router.Route("/api", func(r chi.Router) {
@@ -279,9 +288,79 @@ func (app *App) Start() {
 				sutil.HttpHandlerError(w, err)
 				return
 			}
-
 		})
 	})
 
-	http.ListenAndServe(":9999", router)
+	router.Route("/", func(r chi.Router) {
+		r.Get("/{file}", func(w http.ResponseWriter, r *http.Request) {
+			file := chi.URLParam(r, "file")
+			b, err := public.Content.ReadFile("build/" + file)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(file)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+			w.Write(b)
+		})
+
+		r.Get("/{f1}/{f2}/{f3}", func(w http.ResponseWriter, r *http.Request) {
+			f1 := chi.URLParam(r, "f1")
+			f2 := chi.URLParam(r, "f2")
+			f3 := chi.URLParam(r, "f3")
+
+			b, err := public.Content.ReadFile("build/" + f1 + "/" + f2 + "/" + f3)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(f3)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+
+			w.Write(b)
+		})
+
+		r.Get("/{f1}/{f2}/{f3}/{f4}", func(w http.ResponseWriter, r *http.Request) {
+			f1 := chi.URLParam(r, "f1")
+			f2 := chi.URLParam(r, "f2")
+			f3 := chi.URLParam(r, "f3")
+			f4 := chi.URLParam(r, "f4")
+
+			fmt.Println(f1, f2, f3, f4)
+			path := "build/" + f1 + "/" + f2 + "/" + f3 + "/" + f4
+
+			b, err := public.Content.ReadFile(path)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(f4)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+
+			w.Write(b)
+		})
+	})
+
+	http.ListenAndServe(":"+strconv.Itoa(port), router)
 }
