@@ -1,0 +1,295 @@
+# Transport Theory 
+
+2023-02-01
+
+- Ch. 1 in textbook
+- Transport equation
+	- Assumptions
+		1. Particles are points
+		2. Travel in straight lines between collisions
+		3. Particle-particle interactions are neglected
+		4. Collisions are instantaneous
+		5. Materials are isotropic
+		6. Material properties are not time dependent
+		7. **Describes average neutron behavior or mean particle density**
+			- Expection value
+	- Can only be solve
+- Cross sections
+	- Mathematical limit of physical experiment
+		- Slab of material with parallel, monoenergetic beam
+		\begin{gather*}	
+			\text{area}\ = A \\
+			\text{thickness} = \Delta u \\
+			I(u)\ \&\ I(u + \Delta u) \\
+			\\
+			I(u)A - n \Delta u A \sigma(E) I(u)= I(u + \Delta u) A \\
+			\text{where}\ \sigma(E)\ \text{is the microscopic cross section} \\
+			\\
+			n \sigma(E) = \Sigma(E)\ [cm^{-1}]\ \text{is the macroscopic cross section} \\
+			\\
+			I(u + \Delta u) = I(u)[1 - \Sigma(E) \Delta u] \\
+			\Sigma(E) \Delta u\ \text{is probability of collision in}\ \Delta u \\
+			\Sigma(E)\ \text{is # of collision in}\ \Delta u \\
+			\\
+			\frac{I(u + \Delta u) - I(u)}{\Delta u} = -\Sigma(E) I(u) \\
+			\frac{dI(u)}{du} = -\Sigma(E) I(u) \\
+			I(u) = I_0 e^{-\Sigma(E) u} \\
+			\\
+			\text{mean free path: average distance traveled between collision} \\
+			<x> = \int{x f(x) dx}\ \text{for normalized set} \\
+			f(x) = I(u) \\
+			x = u \\
+			\lambda(E) = \frac{\int{du\ uI(u)}}{\int{du\ I(u)}} \\
+			\lambda(E) = \frac{\int{du\ uI_0 e^{-\Sigma(E)u}}}{\int{du\ I_0e^{-\Sigma(E)u}}} \\
+			\text{Integration by parts:}\ \int{uv'} = uv - \int{u'v} \\
+			\lambda(E) = \frac{\frac{ue^{-Sigma u}}{\Sigma} - \int \frac{-1}{\Sigma}e^{-\Sigma u}}{\frac{-e^{-\Sigma u}}{\Sigma}} \\
+			\lambda(E) = \frac{0 - 0 - \frac{-1}{\Sigma(E)} \frac{1}{\Sigma(E)}}{\frac{1}{\Sigma(E)}} = \frac{1}{\Sigma(E)}
+		\end{gather*}
+		- **In book, $\sigma$ is macroscopic, $\tilde{\sigma}$ is microscopic**
+- Scattering distributions
+	- Hat means unit vector
+	- $\Omega$ and $\Omega'$
+		- $\Omega'$ has $\theta$ (polar angle) and $\omega$ (azimuthal angle)
+		- Nuclear data has azimuthal symmetry
+		- Variation is in polar angle
+		\begin{gather*}
+			f(E \rightarrow E', \hat{\Omega} \cdot {\hat{\Omega}'})dE' d\Omega' \\
+			\text{prob of scatter into}\ E',\hat{\Omega}' \\
+			\mu= \cos{\theta} =\hat{\Omega} \cdot \hat{\Omega}' \\
+			d\Omega = \frac{d\omega}{2\pi} \frac{d\theta \sin{\theta}}{2} = \frac{d\omega}{2\pi} \frac{du}{2} \\
+			\int{d\Omega} = \int_0^{2\pi}{\frac{d\omega}{2\pi} \int_{-1}^{1}{\frac{du}{2}}} = 1 \\
+			\\
+			\text{for elastic scattering} \\
+			\int{dE'}\int{d\Omega'}\ f(E \rightarrow E', \hat{\Omega} \cdot {\hat{\Omega}'}) = 1 \\
+			\text{for}\ (n,2n)\ \text{prior expression is}\ 2 \\
+			\\
+			\Sigma_s(\vec{r}, E \rightarrow E', \hat{\Omega} \cdot \hat{\Omega}') dE' d\Omega' \\
+			\text{probability per unit path length to scatter into}\ E',\hat{\Omega}'
+		\end{gather*}
+
+## Elastic Scattering
+
+- **Not used till HW 4**
+	\begin{gather*}
+		f(E \rightarrow E', \hat{\Omega} \cdot \hat{\Omega}') = \frac{1}{(1-\alpha)E}\delta(\hat{\Omega}\cdot \hat{\Omega}' - \tilde{\mu}) \\
+		\text{Dirac delta} \\
+		\text{Kroneker delta: discrete delta functions}	 \\
+		\delta_{nm} = 
+		\begin{cases}
+			 1, n = m \\
+			 0, else \\
+		\end{cases} \\
+		\\
+		\alpha = \frac{(A-1)^2}{(A+1)^2}\\
+		A = \frac{m_t}{m_n}  \\
+		\\
+		\tilde{\mu} = \frac{1}{2} [(A+1)\sqrt{\frac{E'}{E}} - (A-1) \sqrt{\frac{E}{E'}})] \\
+		\text{derived from momentum energy balance}
+	\end{gather*}
+	- Dirac delta function $\delta(x)$
+- Legendre polynomials
+	- Convenient for use in nuclear
+	- Denoted by $P_l$
+		- Lowest is $P_0(\mu) = 1$
+		- $P_1(\mu) = \mu$
+		- $P_2(\mu) = \frac{1}{2}(3\mu^2 - 1)$
+		- $P_l(\mu) = \frac{1}{2^l l!} \frac{d^l}{dl^l} (\mu^2 - 1)^l, l = 1, 2, 3$
+	- Most important property
+		\begin{gather*}
+			\frac{1}{2} \int_{-1}^1 d\mu P_l(\mu) P_{l'}(\mu) = \frac{\delta_{ll'}}{\delta_{l+1}} \\
+			\text{if l is odd and l' is even, integral is 0} \\
+			\text{if l and l' are the same:}\ \frac{1}{2l+1} \\
+		\end{gather*}
+		- $P_0$ gives probabilty of scatter in a direction
+		- Large $P_1$ component means lots of forward scattering
+		- $P_2$ gives you tendency for forward-backward scattering vs. orthogonal scattering
+- Expansion of scattering distribution in LP
+	\begin{gather*}
+		\Sigma_{Sl}(\vec{r}, E\rightarrow E') = \int_{-1}^1 \frac{d\mu}{2} \Sigma_S(\vec{r}, E \rightarrow E', \mu) P_l(\mu) \\
+		\text{In practice, distributions dont have l > 5} \\
+		\Sigma_{Sl} \rightarrow 0 \\
+		\Sigma_{Sl}(\vec{r}, E \rightarrow E', \mu) = \sum_{l=0}^\infty \Sigma_{Sl}(\vec{r}, E \rightarrow E') P_l(\mu) \\
+		\\
+		\text{for isotropic scattering in lab frame} \\
+		\Sigma_S(\vec{r}, E \rightarrow E', \mu) \approx \Sigma_{S0}(\vec{r}, E \rightarrow E') \\
+	\end{gather*}
+- 1-to-1 mapping from $E'$ to $\mu$
+
+## Fission Neutron Distributions
+
+- $\nu(E)$: number of neutrons produced by fission caused by a neutron at E
+	- For U-235 we normally expect 2.4 neutrons per fission, but at high E upwards of 6 can be produced
+- $\chi(E)dE'$: distribution of neutron E out of fission
+	- Watt spectrum
+	- In reality $\chi(E', E) dE'$
+		$$ \int_0^\infty dE \chi(E) = 1 $$
+- $\nu \Sigma_f(E)\chi(E') dE' d\Omega'$: number of 
+
+## Particle Streaming
+
+- Look at differential volume $dV$ at $\vec{r}$
+	- Establish balance of neutrons in $dV$ but only in a direction $\hat{\Omega}d\Omega$
+	- We define $N(\vec{r}, \hat{\Omega}, E, t)dVd\Omega dE dt$
+		- Paticle density distribution
+			- Expected number of particles in $dV$ at $\vec{r}$ moving in $d\Omega$ around $\hat{\Omega}$ at $E,dt$
+		- With differentials in place, the above is a number
+		- Without differentials, we get a density
+	- Dividing by differentials we get
+	$$ N(\vec{r}, \hat{\Omega}, E, t) $$
+		- Particles per unit volume, energy, angle, and time
+- Angular flux
+	- $\psi(\vec{r}, \hat{\Omega}, E, t) = vN(\vec{r}, \hat{\Omega}, E, t)$
+		- $v$ is speed, not velocity
+	- $\frac{cm}{cm^3 eV s^2}$
+		- Can be interpreted as path length or total distance traveled by particles in $dV,d\Omega, dE, dt$
+- Another def
+	- $\Sigma(\vec{r}, E, t) \phi dV dE d\Omega$
+		- Total number of collisions
+- Scalar flux
+	- $\phi(\vec{r}, E, t) = \int{d\Omega \psi(\vec{r}, E, \Omega, t)}$
+		- Total distance covered regardless of direction
+		- $\frac{cm}{cm^3 eV s^2}$
+			- **Same as angular flux**
+- Can take scalar flux 
+	- $\phi{\vec{r}} = \int{dt} \int_0^\infty \phi(\vec{r}, E, t)$
+		- Neutron fluence
+
+## Neutron Currents
+
+- Particles crossing a surface $dA$ with normal vector $\hat{n}$
+	- $\hat{\Omega}$ not necessarily aligned with normal
+	\begin{gather*}
+		N(\vec{r}, \hat{\Omega}, E, t) v dt\ \hat{n}\cdot\hat{\Omega}\ dA dE \\
+		= \hat{n} \cdot \hat{\Omega} \psi(\vec{r}, \hat{\Omega}, E, t) dAdEdt \\
+		\text{above is # of particles crossing dA in}\ \hat{\Omega} \\
+		\\
+		J_\hat{n}(\vec{r}, E, t) = J_n^+ - J_n^- = \int{d\Omega\ \hat{n} \cdot \hat{\Omega} \psi(\vec{r}, \hat{\Omega}, E, t)dAdEdt} \\
+		\text{above is number of particles crossing dA} \\
+		\text{which represents balance of particles across dA} \\ 
+		\\
+		\text{partial current} \\
+		J_\hat{n}^+ = \int_{\hat{n} \cdot \hat{\Omega} \gt 0}{d\Omega\ \hat{n}\cdot \hat{\Omega} \psi} \\
+		J_\hat{n}^+ = \int_{\hat{n} \cdot \hat{\Omega} \lt 0}{d\Omega\ |\hat{n}\cdot \hat{\Omega}| \psi} \\
+	\end{gather*}
+- Current vector $\vec{J} = J_\hat{x}\hat{e}_x + J_\hat{y}\hat{e}_y + J_\hat{z}\hat{e}_z$ 
+	- $J_\hat{n} = \hat{n} \cdot \vec{J}$
+	- $\vec{J} = \int{d\Omega \hat{\Omega} \psi(\hat\Omega)}$
+		- Integral of vector quantity
+
+## Streaming Collision Operator
+
+- At $\vec{r}$, there exists a differential cylinder of dimensions $\Delta A$ and $\Delta U$ along direction $\hat{\Omega}$
+- To increase number of particles in volume, negative net streaming out of $\Delta V$ is required
+- Any scattering or reactions in $\Delta V$ remove particles from this measure (negative)
+- Fission emission into $\Delta V$ or scattering into $\Delta V$
+
+$$ [N(\vec{r}, \hat{\Omega}, E, t + \Delta t) -  N(\vec{r}, \hat{\Omega}, E, t)] \Delta u \Delta A d\Omega dE = \text{above}$$
+$$ \Delta V = \Delta u \Delta A $$
+$$ \Delta u = v \Delta t $$
+
+- Streaming
+	$$ N(\vec{r} + \Delta u \hat{\Omega}, \hat{\Omega}, E, t) - N(\vec{r}, \hat{\Omega}, E, t) v \Delta t \Delta A d\Omega dE$$
+	- Particles can only enter in axial direction of volume
+	- Number of reactions is:
+	$$ \Sigma (\vec{r}, E) v N(\vec{r}, \hat{\Omega}, E, t) \Delta u \Delta A d\Omega dE $$
+	- Expression for source
+	$$ q(\vec{r}, \hat{\Omega}, E, t)  \Delta u \Delta A d\Omega dE dt $$
+- Now we start combining and simplifying
+	\begin{gather*}
+		[N(\vec{r}, \hat{\Omega}, E, t + \Delta t) - N(\vec{r}, \hat{\Omega}, E, t)] \Delta u \Delta A d\Omega dE \\
+		- [N(\vec{r} + \Delta u \hat{\Omega}, \hat{\Omega, E, t}) -N(\vec{r}, \hat{\Omega, E, t})] v Delta A d\Omega dE \Delta t \\
+		- [\Sigma(\vec{r}, E)v N(\vec{r}, \hat{\Omega}, E, t)] \Delta u \Delta A d\Omega eE \Delta t\\
+		+ [q(\vec{r}, \hat{\Omega}, E, t)] \Delta u \Delta A d\Omega  dE \Delta t \\
+		\\
+		\text{divide differentials} \\
+		\frac{N(\vec{r}, \hat{\Omega}, E, t+\Delta t) - N(\vec{r}, \hat{\Omega}, E, t)}{\Delta t} + \frac{vN(\vec{r} + \Delta u\hat{\Omega}, \hat{\Omega}, E, t) - vN(\vec{r}, \hat{\Omega}, E, t)}{\Delta u} \\
+		+ \Sigma(\vec{r}, E) v N(\vec{r}, \hat{\Omega}, E, t) = q(\vec{r}, \hat{\Omega}, E, t) \\
+		\\
+		\text{simplifying...} \\
+		\frac{d}{du}\psi = \hat{\Omega}\cdot \vec{\nabla} \psi \\
+		\hat{\Omega}\cdot \vec{\nabla} \psi = \hat{\Omega}\cdot\hat{e}_x \frac{\delta}{\delta x} \psi + \hat{\Omega}\cdot\hat{e}_y \frac{\delta}{\delta y} \psi + \hat{\Omega}\cdot\hat{e}_z \frac{\delta}{\delta z} \psi \\ 
+		\text{results in} \\ 
+		\frac{1}{v} \frac{\delta}{\delta t} \psi(\vec{r}, \hat{\Omega}, E, t) + \hat{\Omega}\cdot\vec{\nabla} \psi(\vec{r}, \hat{\Omega}, E, t) + \Sigma(\vec{r}, E) \psi(\vec{r}, \hat{\Omega}, E, t) = q(\vec{r}, \hat{\Omega}, E, t) \\
+		\\
+		\text{integrating over all angles gives expression for all directions} \\
+		\frac{1}{v} \frac{\delta}{\delta t} \phi(\vec{r}, E, t) + \vec{\nabla}\cdot \vec{J}(\vec{r}, E, t) + \Sigma(\vec{r}, E)\phi(\vec{r}, E, t) = Q(\vec{r}, E, t) \\
+		\text{this is useful for Fick's approximation} \\
+		\vec{J}(\vec{r}, E, t) \approx -D(\vec{r}, E) \vec{\nabla} \phi(\vec{r}, E, t) \\
+		\text{this is the diffusion equation}
+	\end{gather*}
+
+## Transport of Secondary Particles
+
+$$ q = q_s + q_f + q_{ext} $$
+
+- Scattering source $q_s$
+	$$q_s(\vec{r}, \hat{\Omega}, E, t) = \int_0^\infty dE' \int d\Omega' \Sigma_s(\vec{r}, E' \rightarrow E, \hat{\Omega}' \cdot \hat{\Omega}, t) \psi(\vec{r}, \hat{\Omega}', E', t)$$
+	- Removal is in collision term
+- Fission source
+	$$ q_f(\vec{r}, \hat{\Omega}, E, t) = \chi(E) \int_0^{\infty} dE' \nu \Sigma_f(\vec{r}, E') \int d\Omega' \psi(\vec{r} \hat{\Omega}', E', t)$$
+
+
+## Introducing Homework 1
+
+- Gain physical intuition between $\phi$, $J$, and $R$
+	- Mainly difference between scalar flux and current
+- Neutron generator modeled as delta function
+	- $q(x,\mu) = \delta(x)$
+		- Source is located at $x = 0$
+	- Assumptions
+		- Isotropic source
+		- 1D cartesian geometry
+		- Mono-energetic
+- Design shielding to make it so 1/10 of neutrons make it through shielding
+	- $\Delta x = 0.1$
+	- $\Sigma_c = 0.31$
+	- Source strength
+	$$ S = \int_{-\infty}^\infty dx \int_{-1}^1 \frac{d\mu}{2} q(x, \mu) = 1 $$
+	$$ J(n\Delta x) \lt \frac{1}{2} \frac{1}{10} $$
+	\begin{gather*}
+		J_x^- = 0 \\
+		J(x) = J_x^+
+	\end{gather*}
+
+### Analytical Solution for Angular Flux
+
+- Simplify for problem
+	\begin{gather*}
+		\frac{1}{v} \frac{\delta}{\delta t} \phi(\vec{r}, E, t) + \vec{\nabla}\cdot \vec{J}(\vec{r}, E, t) + \Sigma(\vec{r}, E)\phi(\vec{r}, E, t) = Q(\vec{r}, E, t) \\
+		\vec{\nabla} = \frac{\delta}{\delta x} \\
+		\vec{r} = x \\
+		\Sigma_t(\vec{r}, E) = 0.31 \\
+		\text{no time dependence} \\
+		\Omega = \mu \\
+		\mu \frac{\delta}{\delta x} \psi(x, \mu) + 0.31 \psi(x, \mu) = q(x) \\
+		\frac{\delta}{\delta x} \psi(x, \mu) + \frac{0.31}{\mu} \psi(x, \mu) = \frac{q(x)}{\mu} \\
+		\text{use integrating factor} \\
+		\frac{\delta}{\delta x}[e^{\Sigma \frac{x}{\mu}} \psi] = e^{\Sigma \frac{x}{\mu}} \frac{q}{\mu} \\
+		e^{\Sigma \frac{x}{\mu}} \psi = \int dx e^{\Sigma \frac{x}{\mu}} \frac{q(x, \mu)}{\mu} + C \\
+		\psi(x, \mu) = e^{(-\Sigma \frac{x}{\mu})} \int dx'\ \frac{q(x', \mu)}{\mu} e^{\Sigma \frac{x'}{\mu}} + Ce^{-\Sigma \frac{x}{\mu}} \\
+		\psi(x, \mu) = \int dx'\ e^{-\Sigma (\frac{x - x'}{\mu})} \frac{q(x', \mu)}{\mu} + Ce^{-\Sigma \frac{x}{\mu}}
+	\end{gather*}
+
+### Scalar Flux
+
+\begin{gather*}
+	\psi(x, \mu) = \frac{q_0}{\mu}e^{\Sigma \frac{x}{\mu}} \\
+	\text{for}\ x \gt 0\\ 
+	\phi(x) = \int_0^1 \frac{d\mu}{2} \psi(x, \mu) \\
+	= \int_0^1 \frac{d\mu}{2} \frac{q_0}{\mu}e^{-\Sigma \frac{x}{\mu}} \\
+	\text{use change of variables} \\
+	t = \frac{1}{\mu} \\
+	\frac{dt}{d\mu} = \frac{-1}{\mu^2} = t^2 \\
+	\frac{q_0}{2} \int \frac{-1}{t^2} dt\ t e^{-\Sigma x t} \\
+	= \frac{q_0}{2} \int_1^\infty dt\ \frac{e^{-\Sigma x t}}{t} \\
+	\text{is called the exponential integral} \\
+	\phi(x) = \frac{q_0}{2} E_1 (\Sigma x) \\
+	\\
+	\text{Now we calculate the current} \\
+	J(x) =  \int \frac{d\mu}{2} e_x \cdot \Omega \psi(x, \mu) \\
+	= \int_0^1 \frac{d\mu}{2} \mu \psi(x, \mu) \\
+	J(x) = \frac{q_0}{2} \int_1^\infty  \frac{dt}{t^2} e^{-\Sigma x t} \\
+	J(x) = \frac{q_0}{2} E_2(\Sigma x) \\
+\end{gather*}
+
+- test

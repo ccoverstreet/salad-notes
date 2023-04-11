@@ -1,258 +1,366 @@
 package app
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
-	"strings"
-	"sync"
+	"strconv"
 
-	"github.com/ccoverstreet/salad-notes/assets"
-	"github.com/ccoverstreet/salad-notes/dirwatch"
+	"github.com/ccoverstreet/salad-notes/database"
 	"github.com/ccoverstreet/salad-notes/pandoc"
-	"github.com/ccoverstreet/salad-notes/util"
-	"github.com/fsnotify/fsnotify"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	"github.com/rs/zerolog/log"
+	"github.com/ccoverstreet/salad-notes/public"
+	sutil "github.com/ccoverstreet/salad-notes/sutil"
+	"github.com/go-chi/chi/v5"
 )
 
-type Client struct {
-	conn *websocket.Conn
+type App struct {
+	DB database.DatabaseHandle
 }
 
-func CreateClient(conn *websocket.Conn) *Client {
-	return &Client{conn}
-}
+func CreateApp(name string) (*App, error) {
+	// Check if database file already exists
+	fileData := []byte("{}")
+	dbFilename := fmt.Sprintf("%s/saladbowl.json", name)
+	shouldSave := false
 
-type SaladApp struct {
-	sync.RWMutex
-	clients  map[string]*Client
-	router   *mux.Router
-	watchdir string
-	watcher  *dirwatch.DirWatcher
-}
-
-func CreateSaladApp(watchdir string) *SaladApp {
-	app := &SaladApp{}
-
-	router := mux.NewRouter()
-
-	router.HandleFunc("/", HomeHandler)
-	router.HandleFunc("/saladnotes/connectClient", WrapRoute(ConnectClient, app))
-	router.HandleFunc("/saladnotes/assets/{file}", AssetHandler)
-	router.HandleFunc("/saladnotes/listDir", ListDirHandler)
-	router.PathPrefix("/").Handler(http.HandlerFunc(StaticFileHandler))
-
-	app.router = router
-	app.watchdir = watchdir
-
-	newWatcher, err := dirwatch.CreateDirWatcher(watchdir)
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Unable to create directory watcher")
-	}
-
-	app.watcher = newWatcher
-	app.watcher.SetCallback(app.DWCallback)
-	app.clients = make(map[string]*Client)
-
-	return app
-}
-
-func (app *SaladApp) Listen(port int) {
-	app.watcher.Listen() // Spawn listener
-	http.ListenAndServe(fmt.Sprintf(":%d", port), app.router)
-}
-
-func (app *SaladApp) AddClient(remoteAddr string, client *Client) error {
-	// Check if client with given remoteAddr already exists
-	_, ok := app.clients[remoteAddr]
-	if ok {
-		return fmt.Errorf("Client %s already connected", remoteAddr)
-	}
-
-	app.clients[remoteAddr] = client
-
-	return nil
-}
-
-// This is an intermediate function used as a callback
-// to dirwatch.DirWatcher. This function only notifies clients
-// upon file changes for Markdown files
-func (app *SaladApp) DWCallback(event fsnotify.Event) {
-	ext := path.Ext(event.Name)
-
-	// Only interested in write events
-	if event.Op != fsnotify.Write {
-		return
-	}
-
-	// Ignore files that aren't Markdown files
-	if ext != ".md" {
-		return
-	}
-
-	app.NotifyClients(event.Name)
-}
-
-func (app *SaladApp) NotifyClients(modifiedFile string) {
-	data := struct {
-		ModifiedFile string `json:"modifiedFile"`
-	}{modifiedFile}
-
-	errString := ""
-
-	for remoteAddr, client := range app.clients {
-		log.Info().
-			Str("remoteAddr", remoteAddr).
-			Msg("Notifying client")
-
-		err := client.conn.WriteJSON(data)
+	if _, err := os.Stat(dbFilename); err == nil {
+		// File exists
+		fileData, err = os.ReadFile(dbFilename)
 		if err != nil {
-			delete(app.clients, remoteAddr)
-			errString += err.Error() + ";"
+			return nil, err
 		}
-	}
-
-	if len(errString) > 0 {
-		log.Error().
-			Err(fmt.Errorf("%s", errString)).
-			Msg("Errors occured while notifying clients.")
-	}
-}
-
-func WrapRoute(handler func(http.ResponseWriter, *http.Request, *SaladApp), app *SaladApp) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handler(w, r, app)
-	}
-}
-
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	fileData, err := assets.GetAsset("index.html")
-	if err != nil {
-		return
-	}
-
-	w.Write(fileData.Bytes)
-}
-
-var WSUPGRADER = websocket.Upgrader{}
-
-func ConnectClient(w http.ResponseWriter, r *http.Request, app *SaladApp) {
-	log.Info().
-		Str("remoteAddr", r.RemoteAddr).
-		Msg("Client connecting")
-
-	conn, err := WSUPGRADER.Upgrade(w, r, nil)
-	if err != nil {
-		util.HandleHTTPErrorAndLog(w, 400, err)
-		return
-	}
-
-	err = app.AddClient(r.RemoteAddr, CreateClient(conn))
-	if err != nil {
-		util.HandleHTTPErrorAndLog(w, 500, err)
-		return
-	}
-
-	return
-}
-
-func AssetHandler(w http.ResponseWriter, r *http.Request) {
-	file := mux.Vars(r)["file"]
-
-	fileData, err := assets.GetAsset(file)
-	if err != nil {
-		util.HandleHTTPErrorAndLog(w, 400, fmt.Errorf("Asset '%s' not found", file))
-		return
-	}
-
-	w.Header().Set("Content-Type", fileData.MimeType)
-	w.Write(fileData.Bytes)
-}
-
-func StaticFileHandler(w http.ResponseWriter, r *http.Request) {
-	ext := path.Ext(r.RequestURI)
-
-	log.Info().
-		Str("URI", r.RequestURI).
-		Msg("Static file requested")
-
-	// Use pandoc to create HTML content of Markdown file
-	if ext == ".md" {
-		b, err := pandoc.RunPandoc("."+r.RequestURI, []string{"--mathjax"})
+	} else if errors.Is(err, os.ErrNotExist) {
+		shouldSave = true
+		err = os.MkdirAll(name, 0755)
 		if err != nil {
-			log.Error().
-				Err(err).
-				Str("file", r.RequestURI).
-				Msg("Error while using pandoc")
-			fmt.Fprintf(w, "%v", err)
+			return nil, err
+		}
+
+		fileData = []byte(fmt.Sprintf(`{
+			"dataDir": "%s",
+			"contentMap": {}
+		}`, name))
+	} else {
+		return nil, fmt.Errorf("FATAL: Filesystem is in an inconsistent state - %v", err)
+	}
+
+	var db database.SaladDB
+	err := json.Unmarshal(fileData, &db)
+	if err != nil {
+		return nil, err
+	}
+
+	if shouldSave {
+		log.Println(db, "Saving")
+		db.Save()
+	}
+
+	return &App{&db}, nil
+}
+
+type Handler struct {
+	Closure func(http.ResponseWriter, *http.Request)
+}
+
+func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.Closure(w, r)
+}
+
+func HTTPHandler(closure func(http.ResponseWriter, *http.Request)) http.Handler {
+	return Handler{closure}
+}
+
+func (app *App) Start(port int) {
+	router := chi.NewRouter()
+
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		b, err := public.Content.ReadFile("build/index.html")
+		if err != nil {
+			sutil.HttpHandlerError(w, err)
 			return
 		}
 
 		w.Write(b)
-	} else if ext == "" || ext == ".exe" {
-		return
-	} else { // Send binary version of any other file
-		b, err := os.ReadFile("." + r.RequestURI)
-		if err != nil {
-			log.Error().
-				Err(err).
-				Msg("File not found")
-			return
-		}
+	})
 
-		// Add MimeType if it exists in map
-		// Otherwise, print a warning
-		mimeType, ok := assets.MIMEMAP[ext]
-		if !ok {
-			log.Warn().
-				Str("file", r.RequestURI).
-				Msg("Valid MimeType not found")
-		}
+	router.Route("/api", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			fmt.Fprintf(w, "<img src='/123'/>")
+		})
 
-		if ok {
-			w.Header().Set("Content-Type", mimeType)
-		}
+		r.Post("/getByName", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				Name string `json:"name"`
+			}{}
 
-		w.Write(b)
-	}
-}
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+			}
 
-func ListDirHandler(w http.ResponseWriter, r *http.Request) {
-	reqData := struct {
-		DirName string `json:"dirName"`
-	}{}
+			docs := app.DB.GetItemsByName(query.Name)
 
-	err := util.UnmarshalJSONBody(r, &reqData)
-	if err != nil {
-		util.HandleHTTPErrorAndLog(w, 400, err)
-		return
-	}
+			b, err := json.Marshal(docs)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+			}
 
-	sanitizedDir := sanitizeDirName(reqData.DirName)
-	if strings.HasPrefix(sanitizedDir, "..") {
-		sanitizedDir = "."
-	}
+			w.Write(b)
+		})
 
-	files, err := util.ListDir(sanitizedDir)
-	if err != nil {
-		util.HandleHTTPErrorAndLog(w, 500, err)
-		return
-	}
+		r.Post("/getByTags", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				Tags []string `json:"tags"`
+			}{}
 
-	util.SendJSONResponse(w, files)
-}
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+			}
 
-func sanitizeDirName(dirName string) string {
-	out := filepath.Clean(dirName)
-	if string(out[0]) == "/" {
-		return out[1:]
-	}
+			docs := app.DB.GetItemsByTags(query.Tags)
 
-	return out
+			b, err := json.Marshal(docs)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+			}
+
+			w.Write(b)
+		})
+
+		r.Get("/uid/{uid}", func(w http.ResponseWriter, r *http.Request) {
+			uid := chi.URLParam(r, "uid")
+
+			doc, err := app.DB.GetItemByUID(uid)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			log.Println(doc)
+
+			b, err := app.DB.ReadFile(doc.UID)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			jsonBytes, err := json.Marshal(doc)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			w.Header().Set("Content-Type", database.DocTypeToMime(doc.FileType))
+			w.Header().Set("saladnotes-info", string(jsonBytes))
+			w.Write(b)
+		})
+
+		r.Get("/render/{uid}", func(w http.ResponseWriter, r *http.Request) {
+			uid := chi.URLParam(r, "uid")
+
+			doc, err := app.DB.GetItemByUID(uid)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			if doc.FileType != database.MD {
+				sutil.HttpHandlerError(w, fmt.Errorf("Invalid document type for rendering"))
+				return
+			}
+
+			b, err := app.DB.ReadFile(doc.UID)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			md, err := pandoc.ConvertMDToHTML(b)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			w.Header().Set("Content-Type", "text/markdown")
+			w.Write(md)
+		})
+
+		r.Post("/addItem", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				Name string   `json:"name"`
+				Tags []string `json:"tags"`
+			}{}
+
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			newDoc, err := app.DB.AddItem(query.Name, database.MD, query.Tags, []byte{})
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			b, err := json.Marshal(newDoc)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			w.Header().Set("Content-Type", "text/markdown")
+			w.Write(b)
+		})
+
+		r.Post("/deleteItem", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				UID string `json:"uid"`
+			}{}
+
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			err = app.DB.DeleteItem(query.UID)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, "{}")
+		})
+
+		r.Post("/writeItem", func(w http.ResponseWriter, r *http.Request) {
+			uid := r.Header.Get("saladnotes-uid")
+			data, err := io.ReadAll(r.Body)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			err = app.DB.WriteItem(uid, data)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+		})
+
+		r.Post("/updateMeta", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				UID  string   `json:"uid"`
+				Name string   `json:"name"`
+				Tags []string `json:"tags"`
+			}{}
+
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			err = app.DB.UpdateItemMeta(query.UID, query.Name, query.Tags)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			fmt.Fprintf(w, "{}")
+		})
+
+		r.Post("/renderNote", func(w http.ResponseWriter, r *http.Request) {
+			query := struct {
+				UID string `json:"uid"`
+			}{}
+
+			err := sutil.UnmarshalJSONBody(r, &query)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+		})
+	})
+
+	router.Route("/", func(r chi.Router) {
+		r.Get("/{file}", func(w http.ResponseWriter, r *http.Request) {
+			file := chi.URLParam(r, "file")
+			b, err := public.Content.ReadFile("build/" + file)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(file)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+			w.Write(b)
+		})
+
+		r.Get("/{f1}/{f2}/{f3}", func(w http.ResponseWriter, r *http.Request) {
+			f1 := chi.URLParam(r, "f1")
+			f2 := chi.URLParam(r, "f2")
+			f3 := chi.URLParam(r, "f3")
+
+			b, err := public.Content.ReadFile("build/" + f1 + "/" + f2 + "/" + f3)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(f3)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+
+			w.Write(b)
+		})
+
+		r.Get("/{f1}/{f2}/{f3}/{f4}", func(w http.ResponseWriter, r *http.Request) {
+			f1 := chi.URLParam(r, "f1")
+			f2 := chi.URLParam(r, "f2")
+			f3 := chi.URLParam(r, "f3")
+			f4 := chi.URLParam(r, "f4")
+
+			fmt.Println(f1, f2, f3, f4)
+			path := "build/" + f1 + "/" + f2 + "/" + f3 + "/" + f4
+
+			b, err := public.Content.ReadFile(path)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
+
+			ext := filepath.Ext(f4)
+			switch ext {
+			case ".css":
+				fmt.Println(ext)
+				w.Header().Set("Content-Type", "text/css")
+			case ".js":
+				w.Header().Set("Content-Type", "text/javascript")
+			}
+
+			w.Write(b)
+		})
+	})
+
+	http.ListenAndServe(":"+strconv.Itoa(port), router)
 }
