@@ -10,12 +10,15 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/ccoverstreet/salad-notes/database"
-	"github.com/ccoverstreet/salad-notes/pandoc"
 	"github.com/ccoverstreet/salad-notes/public"
 	sutil "github.com/ccoverstreet/salad-notes/sutil"
 	"github.com/go-chi/chi/v5"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 type App struct {
@@ -143,8 +146,6 @@ func (app *App) Start(port int) {
 				return
 			}
 
-			log.Println(doc)
-
 			b, err := app.DB.ReadFile(doc.UID)
 			if err != nil {
 				sutil.HttpHandlerError(w, err)
@@ -182,11 +183,28 @@ func (app *App) Start(port int) {
 				return
 			}
 
-			md, err := pandoc.ConvertMDToHTML(b)
-			if err != nil {
-				sutil.HttpHandlerError(w, err)
-				return
-			}
+			// Really hate having to do all this reallocation,
+			// but string functions are nice for preprocessing
+			// Need to replace all $$ with \n$$\n to force
+			// tight list
+			tempStr := strings.ReplaceAll(string(b), "$$", "\n\t\t$$")
+
+			// Old Pandoc powered converter
+			// Could still be used to generate PDF
+			//md, err := pandoc.ConvertMDToHTML(b)
+
+			extensions := parser.CommonExtensions | parser.NoEmptyLineBeforeBlock
+			p := parser.NewWithExtensions(extensions)
+			tree := p.Parse([]byte(tempStr))
+
+			// create HTML renderer with extensions
+			htmlFlags := html.CommonFlags | html.HrefTargetBlank
+			opts := html.RendererOptions{Flags: htmlFlags}
+			renderer := html.NewRenderer(opts)
+
+			// To force tight lists, li > p { margin-bottom: 0 }
+			// must be set
+			md := markdown.Render(tree, renderer)
 
 			w.Header().Set("Content-Type", "text/markdown")
 			w.Write(md)
@@ -303,7 +321,6 @@ func (app *App) Start(port int) {
 			ext := filepath.Ext(file)
 			switch ext {
 			case ".css":
-				fmt.Println(ext)
 				w.Header().Set("Content-Type", "text/css")
 			case ".js":
 				w.Header().Set("Content-Type", "text/javascript")
@@ -325,7 +342,6 @@ func (app *App) Start(port int) {
 			ext := filepath.Ext(f3)
 			switch ext {
 			case ".css":
-				fmt.Println(ext)
 				w.Header().Set("Content-Type", "text/css")
 			case ".js":
 				w.Header().Set("Content-Type", "text/javascript")
@@ -340,7 +356,6 @@ func (app *App) Start(port int) {
 			f3 := chi.URLParam(r, "f3")
 			f4 := chi.URLParam(r, "f4")
 
-			fmt.Println(f1, f2, f3, f4)
 			path := "build/" + f1 + "/" + f2 + "/" + f3 + "/" + f4
 
 			b, err := public.Content.ReadFile(path)
@@ -352,7 +367,6 @@ func (app *App) Start(port int) {
 			ext := filepath.Ext(f4)
 			switch ext {
 			case ".css":
-				fmt.Println(ext)
 				w.Header().Set("Content-Type", "text/css")
 			case ".js":
 				w.Header().Set("Content-Type", "text/javascript")

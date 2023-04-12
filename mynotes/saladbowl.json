@@ -1,0 +1,17 @@
+{
+	"dataDir": "mynotes",
+	"contentMap": {
+		"FbU3W5surGWa42LPEjg0p3KGKziXLMxC": {
+			"uid": "FbU3W5surGWa42LPEjg0p3KGKziXLMxC",
+			"name": "New Document",
+			"fileType": "md",
+			"tags": []
+		},
+		"h1pdYoAtVcJ7Fzk00StPdLqrWbrMQRn2": {
+			"uid": "h1pdYoAtVcJ7Fzk00StPdLqrWbrMQRn2",
+			"name": "New Document",
+			"fileType": "md",
+			"tags": []
+		}
+	}
+}

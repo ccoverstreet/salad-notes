@@ -33,4 +33,8 @@
 		overflow-y: scroll
 	}
 
+	:global(li > p) {
+		margin-bottom: 0 !important;
+	}
+
 </style>

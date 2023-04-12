@@ -3,11 +3,12 @@ package database
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/rs/zerolog/log"
 )
 
 type DocType string
@@ -86,7 +87,7 @@ func (db *SaladDB) Print() {
 	db.RLock()
 	defer db.RUnlock()
 	b, err := json.MarshalIndent(db.ContentMap, "", "    ")
-	log.Println(string(b), err)
+	log.Printf("%v %v", string(b), err)
 }
 
 // This spawns a goroutine that will save once the
@@ -98,7 +99,8 @@ func (db *SaladDB) Save() {
 
 		jsonStr, err := json.MarshalIndent(db, "", "\t")
 		if err != nil {
-			log.Println("ERROR: Unable to save database meta file. File relations are no longer being saved")
+			log.Error().
+				Msg("ERROR: Unable to save database meta file. File relations are no longer being saved")
 			return
 		}
 
@@ -158,7 +160,6 @@ func (db *SaladDB) DeleteItem(uid string) error {
 	delete(db.ContentMap, uid)
 	db.Save()
 
-	log.Println("ASDASD", db.ContentMap)
 	return nil
 }
 
