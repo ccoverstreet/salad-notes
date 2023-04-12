@@ -1,0 +1,25 @@
+{
+	"dataDir": "tester",
+	"contentMap": {
+		"AqSM5Z6CMuPKOkcs0tAXqJjmznsDhjMW": {
+			"uid": "AqSM5Z6CMuPKOkcs0tAXqJjmznsDhjMW",
+			"name": "New Document",
+			"fileType": "md",
+			"tags": []
+		},
+		"HpHkPTBAF0okbIn8gJZggL4Xytz2r7B8": {
+			"uid": "HpHkPTBAF0okbIn8gJZggL4Xytz2r7B8",
+			"name": "Transport Theory",
+			"fileType": "md",
+			"tags": [
+				"NE-582"
+			]
+		},
+		"lxTCwXIdrkc8uB2f9AbKUVMbJHRLLRgv": {
+			"uid": "lxTCwXIdrkc8uB2f9AbKUVMbJHRLLRgv",
+			"name": "New Document",
+			"fileType": "md",
+			"tags": []
+		}
+	}
+}

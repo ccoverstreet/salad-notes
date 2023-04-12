@@ -2,33 +2,35 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
-	"github.com/ccoverstreet/salad-notes/app"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/ccoverstreet/salad-notes/app"
 )
 
 func main() {
-	flagPortHTTP := flag.Int("port", 33322, "HTTP port using by clients")
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	port := flag.Int("p", 23452, "Port")
 	flag.Parse()
 
-	setupLogging()
-	log.Info().Msg("Starting Salad Notes")
+	// Setup logging
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	//With().Caller().Logger()
+	//log.Logger = log.
 
-	portHTTP := *flagPortHTTP
+	app, err := app.CreateApp("mynotes")
+	if err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Unable to create application instance")
+		return
+	}
 
-	core := app.CreateSaladApp(".")
-	log.Info().
-		Str("URL", fmt.Sprintf("http://localhost:%d", portHTTP)).
-		Msg("Started Salad Notes core")
-	core.Listen(portHTTP)
-
-	//pandoc.RunPandoc("test.md", "test.html", []string{"--mathjax"})
-}
-
-func setupLogging() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).
-		With().Caller().Logger()
+	log.Info().Msgf("Starting app on port %d", *port)
+	app.Start(*port)
 }

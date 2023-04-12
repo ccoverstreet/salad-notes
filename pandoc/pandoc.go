@@ -4,14 +4,15 @@ import (
 	"os/exec"
 )
 
-func CommandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
-}
+func ConvertMDToHTML(md []byte) ([]byte, error) {
+	cmd := exec.Command("pandoc", "--from=markdown", "--to=html", "--mathjax")
+	writer, err := cmd.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
 
-func RunPandoc(srcFile string, args []string) ([]byte, error) {
-	fullArgs := append([]string{srcFile}, args...)
-	cmd := exec.Command("pandoc", fullArgs...)
+	writer.Write(md)
+	writer.Close()
 
 	return cmd.Output()
 }

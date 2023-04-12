@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const canv = document.getElementById("drawing");
+				const ctx = canv.getContext("2d");
+
+				ctx.fillStyle = "red";
+				ctx.fillRect(20, 20, 50, 50);
+
+				console.log(canv);
+				console.log(ctx);
+				console.log(canv.width);
+				console.log(ctx.size);
+
+				let isDrawing = false;
+
+				canv.addEventListener("mousedown", (e) => {
+					ctx.beginPath();
+					isDrawing = true;
+				})
+
+				canv.addEventListener("mouseup", () => {
+					isDrawing = false;
+				})
+
+				canv.addEventListener("touchstart", () => {
+					console.log("TOUCH START");
+					ctx.beginPath();
+					isDrawing = true;
+				})
+
+				canv.addEventListener("touchend", () => {
+					isDrawing = false;
+				})
+
+				canv.addEventListener("touchmove", (e) => {
+					if (!isDrawing) return;
+					//const posX = (e.targetTouches[0].screenX - e.srcElement.offsetLeft) / e.srcElement.clientWidth * canv.width;
+					//const posY = (e.targetTouches[0].screenY - e.srcElement.offsetTop) / e.srcElement.clientHeight * canv.height;
+
+					const posX = (e.targetTouches[0].clientX - e.target.offsetLeft) / e.srcElement.clientWidth * canv.width;
+					const posY = (e.targetTouches[0].clientY - e.target.offsetTop) /  e.srcElement.clientHeight * canv.height;
+					console.log(posX, posY);
+					console.log(e);
+					ctx.fillStyle = "red";
+					ctx.strokeStyle = "red";
+					ctx.lineWith = 2;
+					ctx.lineTo(posX, posY)
+					ctx.stroke();
+					//ctx.fillRect(posX - 5, posY - 5,
+					//	10, 10);
+
+				})
+
+
+				canv.addEventListener("mouseleave", () => {
+					isDrawing = false;
+				})
+
+				canv.addEventListener("mousemove", (e) => {
+					if (!isDrawing) return;
+					const posX = e.offsetX / e.srcElement.clientWidth  * canv.width;
+					const posY = e.offsetY / e.srcElement.clientHeight  * canv.height;
+					console.log(e);
+					ctx.fillStyle = "red";
+					ctx.strokeStyle = "red";
+					ctx.lineWith = 2;
+					ctx.lineTo(posX, posY)
+					ctx.stroke();
+					//ctx.fillRect(posX - 5, posY - 5,
+					//	10, 10);
+				})   
+			})
+
+			function saveImage() {
+				const canvas = document.getElementById("drawing");
+				const url = canvas.toDataURL();
+				console.log(url);
+			}
+
+			function loadImage() {
+				const canvas = document.getElementById("drawing");
+				const ctx = canvas.getContext("2d");
+				const img = new Image();
+				img.onload = () => {
+					ctx.drawImage(img, 0, 0, 500, 500);
+				}
+				img.src = test;
+			}
+
+			function changeCanvasSize(pixels) {
+				const canv = document.getElementById("drawing");
+				const ctx = canv.getContext("2d");
+				const data = canv.toDataURL();
+				const initialWidth = canv.width;
+				const initialHeight = canv.height;
+				const img = new Image();
+				img.onload = () => {
+					ctx.drawImage(img, 0, 0, initialWidth, initialHeight);
+				}
+				img.src = data
+				canv.height += pixels;
+
+			}
+
+
+		</script>
+	</head>
+	<body>
+		<div>
+			<button onclick="changeCanvasSize(20)">Increase</button>
+			<button onclick="changeCanvasSize(-20)">Decrease</button>
+		</div>
+
+		<canvas id="drawing" width="500" height="500" style="border: 1px solid black"></canvas>
+
+		<button onclick="saveImage()">Save</button>
+	</body>
+</html>
