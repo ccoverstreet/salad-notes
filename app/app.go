@@ -187,7 +187,7 @@ func (app *App) Start(port int) {
 			// but string functions are nice for preprocessing
 			// Need to replace all $$ with \n$$\n to force
 			// tight list
-			tempStr := strings.ReplaceAll(string(b), "$$", "\n\t\t$$")
+			tempStr := strings.ReplaceAll(string(b), "$$", "\n\t$$")
 
 			// Old Pandoc powered converter
 			// Could still be used to generate PDF

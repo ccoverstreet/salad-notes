@@ -6,7 +6,7 @@
     - test
         - of
             - Nesting
-    - Important
+- Important
         $$\begin{gather*}
                 2 + 2 \\
                 3 + 3 \\
