@@ -4,34 +4,29 @@ The goal for this project is to create a more robust version of the note-taking 
 
 One of the shortcomings of this approach is that linking between files in different subdirectories (such as school work and personal research) requires special attention to the path in which the PDF viewer is opened. This problem could be mitigated by setting environment variables or using some form of start script when editing or creating a file.
 
-This project is a web server that is started in the root of a notebook (directory with or without nested subdirectories). The client would connect to the web server and be able to view markdown files within the observed directory. Any writes to markdown files would send the updated file to any connected clients and updated the displayed markdown.
+~~This project is a web server that is started in the root of a notebook (directory with or without nested subdirectories). The client would connect to the web server and be able to view markdown files within the observed directory. Any writes to markdown files would send the updated file to any connected clients and updated the displayed markdown.~~
 
-**This project relies on**
-
-- Pandoc
-- Higlight.js
-- github.com/gorilla/websocket
-- github.com/gorilla/mux
+This project now is a web interface that uses the Ace browser editor to support VIM keys. Clients can view the webpage to create, search/filter, edit, and preview markdown files
 
 ## Usage
 
 1. Start `salad-notes` in the directory that you want to use as the root of your notebook
-2. Open a browser tab and go to `localhost:33322`
-3. Start writing to a `.md` file. The client will automatically view the file once you write to it
-
-### Usage with Vim/Neovim
-
-- Open the root directory of the notebook in vim and navigate using netrw
-- Linking to other files can be done by filename completion
+	- This will create a directory that will contain all created files
+2. Open a browser tab and go to `localhost:21345`
+3. Click the add button in the top left
+	- This will create a blank new document
+	- You can change the name and add some tags
+3. Start writing markdown. This project now uses gomarkdown to generate the HTML. I have plans to add support for multiple backends in the future
+	- The editor uses VIM keys, but I plan on adding an option for this later
+	- Ctrl-s saves the content of the file and refreshes the preview
 
 ## Implemented Features
 
 - Client view refreshes on file write
-- Simple file explorer for viewing files within the notebook
-- Clicking on the current filename copies the filename text to clipboard
-	- Useful for quickly jumping to files in Vim
+- Can search or filter through markdown
 
 ## Planned Features
 
-- Multiple viewing panes
-	- Once file linking is sorted, a primary and secondary view pane would allow for users to have multiple notes open. 
+- Builtin in canvas drawing
+	- Useful for quickly sketching diagrams in notes
+- Support for image pasting
