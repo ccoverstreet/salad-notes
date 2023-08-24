@@ -47,7 +47,7 @@
 
 	onMount(async () => {
     	aceEditor = ace.edit("editor");
-    	aceEditor.setTheme("ace/theme/twilight");
+    	aceEditor.setTheme("ace/theme/clouds");
     	aceEditor.session.setMode("ace/mode/markdown");
 		aceEditor.session.setUseWrapMode(true);
 		aceEditor.setKeyboardHandler("ace/keyboard/vim");
@@ -116,13 +116,15 @@
 			<form on:submit={updateMetaHandler} style="width: auto; flex-grow: 1;">
 				<div>
 					<label>Name</label>
-					<input bind:value={curName}/>
+					<input bind:value={curName} on:focusout={updateMetaHandler}/>
 				</div>
 
 				<div style="flex-grow: 1;">
 					<label>Tags</label>
-					<input style="width: 100%;"bind:value={curTags}/>
+					<input style="width: 100%;" bind:value={curTags} on:focusout={updateMetaHandler}/>
 				</div>
+
+
 
 
 				<button style="display: none;"></button>

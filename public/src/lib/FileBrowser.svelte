@@ -62,6 +62,7 @@
 					<button class="button has-background-primary has-text-light">Search</button>
 				</div>
 			</form>
+
 			<form on:submit={searchByTagsHandler}>
 				<label>Search by Tags</label>
 				<div>
@@ -70,18 +71,20 @@
 				</div>
 			</form>
 
-			<ul>
-			{#each results as d}
-				<li class="search-entry">
-					<button class="file-link-button has-background-white" on:click={setCurrentDocument(d)}>{d.name}</button>
-					<div>
-						{#each d.tags as t}
-							<p>{t}</p>
-						{/each}
-					</div>
-				</li>
-			{/each}
-			</ul>
+			<div id="results-holder">
+				<ul>
+				{#each results as d}
+					<li class="search-entry">
+						<button class="file-link-button has-background-white" on:click={setCurrentDocument(d)}>{d.name}</button>
+						<div>
+							{#each d.tags as t}
+								<p>{t}</p>
+							{/each}
+						</div>
+					</li>
+				{/each}
+				</ul>
+			</div>
 		</div>
 	</div>
 </div>
@@ -143,5 +146,10 @@
 	.search-entry > div > p{ 
 		display: flex;
 		font-weight: bold;
+	}
+
+	#results-holder {
+		max-height: 20vh;
+		overflow-y: scroll;
 	}
 </style>
