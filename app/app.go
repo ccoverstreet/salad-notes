@@ -10,15 +10,12 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/ccoverstreet/salad-notes/database"
+	"github.com/ccoverstreet/salad-notes/pandoc"
 	"github.com/ccoverstreet/salad-notes/public"
 	sutil "github.com/ccoverstreet/salad-notes/sutil"
 	"github.com/go-chi/chi/v5"
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
 )
 
 type App struct {
@@ -183,28 +180,11 @@ func (app *App) Start(port int) {
 				return
 			}
 
-			// Really hate having to do all this reallocation,
-			// but string functions are nice for preprocessing
-			// Need to replace all $$ with \n$$\n to force
-			// tight list
-			tempStr := strings.ReplaceAll(string(b), "$$", "\n\t$$")
-
-			// Old Pandoc powered converter
-			// Could still be used to generate PDF
-			//md, err := pandoc.ConvertMDToHTML(b)
-
-			extensions := parser.CommonExtensions | parser.NoEmptyLineBeforeBlock
-			p := parser.NewWithExtensions(extensions)
-			tree := p.Parse([]byte(tempStr))
-
-			// create HTML renderer with extensions
-			htmlFlags := html.CommonFlags | html.HrefTargetBlank
-			opts := html.RendererOptions{Flags: htmlFlags}
-			renderer := html.NewRenderer(opts)
-
-			// To force tight lists, li > p { margin-bottom: 0 }
-			// must be set
-			md := markdown.Render(tree, renderer)
+			md, err := pandoc.ConvertMDToHTML(b)
+			if err != nil {
+				sutil.HttpHandlerError(w, err)
+				return
+			}
 
 			w.Header().Set("Content-Type", "text/markdown")
 			w.Write(md)

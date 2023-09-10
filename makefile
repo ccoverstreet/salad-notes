@@ -1,6 +1,9 @@
-
 dev: 
-	nodemon -w . -w main.go -w app/app.go -w assets/index.html -w assets/index.css -w assets/index.js --exec "(go run main.go -p=8080) || exit 2"   --signal SIGTERM
+	nodemon -w pandoc -w main.go -w app/app.go -w assets/index.html -w assets/index.css -w assets/index.js --exec "(go run main.go -p=8080) || exit 2"   --signal SIGTERM
+
+saladnotes:
+	cd public && npm run build
+	go build .
 
 multiplatform: 
 	GOOS=linux GOARCH=amd64 go build -o build/salad-notes_linux-amd64
