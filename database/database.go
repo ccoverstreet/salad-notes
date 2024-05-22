@@ -172,7 +172,7 @@ func (db *SaladDB) WriteItem(uid string, content []byte) error {
 		return fmt.Errorf("UID not found in database")
 	}
 
-	return os.WriteFile(fmt.Sprintf("%s/%s", db.DataDir, doc.UID), content, 0644)
+	return os.WriteFile(fmt.Sprintf("%s/%s%s", db.DataDir, doc.UID), content, 0644)
 }
 
 func (db *SaladDB) ReadFile(uid string) ([]byte, error) {

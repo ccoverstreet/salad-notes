@@ -48,7 +48,7 @@
 	onMount(async () => {
     	aceEditor = ace.edit("editor");
     	aceEditor.setTheme("ace/theme/clouds");
-    	aceEditor.session.setMode("ace/mode/markdown");
+    	//aceEditor.session.setMode("ace/mode/markdown");
 		aceEditor.session.setUseWrapMode(true);
 		aceEditor.setKeyboardHandler("ace/keyboard/vim");
 		aceEditor.setFontSize(14);
