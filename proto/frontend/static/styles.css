@@ -1,0 +1,17 @@
+
+	.cm-wrap {
+		height: 100%;
+	}
+
+	.cm-editor {
+		height: 100%;
+	}
+
+	.cm-scoller {
+		overflow: auto;
+		max-height: 50vh;
+	}
+
+	.CodeMirror {
+		height: auto;
+	}

@@ -1,0 +1,26 @@
+{
+	"name": "frontend",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"svelte": "^4.2.7",
+		"vite": "^5.0.3"
+	},
+	"type": "module",
+	"dependencies": {
+		"@codemirror/lang-javascript": "^6.2.2",
+		"@codemirror/lang-markdown": "^6.2.5",
+		"@codemirror/lang-python": "^6.1.6",
+		"@codemirror/language-data": "^6.5.1",
+		"@replit/codemirror-vim": "^6.2.1",
+		"codemirror": "^6.0.1"
+	}
+}

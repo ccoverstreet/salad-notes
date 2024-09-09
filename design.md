@@ -1,4 +1,27 @@
-# Design
+# Design NEW
+
+- Use normal directory setup
+    - Can add
+- Any editor (like VSCode) should be able to modify and edit files
+- Make friendly to version control software like git
+- Allow collaboration through git
+- Pandoc for file conversion
+- Export to static HTML for web deployment
+    - Generates a sqlite database that can be used to query written files
+    - Could also provide handlers in some languages that can be directly used in web servers
+- Single file using YAML frontmatter
+
+
+## Features
+
+-  Knowledge graphs
+-  Integration with version control
+    - Allow for multiple collaborators
+    - Commit history
+- Web editor and viewer
+
+
+# OLD
 
 ## Information stored
 
