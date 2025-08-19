@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS tagmap;
+
+CREATE TABLE items (
+	id TEXT NOT NULL,
+	name TEXT NOT NULL,
+	extension TEXT NOT NULL,
+	creationDate TEXT NOT NULL
+);
+
+CREATE TABLE tags (
+	id TEXT NOT NULL,
+	name TEXT NOT NULL
+);
+
+CREATE TABLE tagmap (
+	tagId TEXT NOT NULL,
+	itemId TEXT NOT NULL
+);
+
